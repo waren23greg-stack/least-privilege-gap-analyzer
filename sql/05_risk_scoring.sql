@@ -1,15 +1,3 @@
--- 05_risk_scoring.sql
--- Scores every granted-but-unused privilege, then ranks accounts and roles.
---   risk_points = table sensitivity (1-5) x privilege weight x days unused
---   days unused: active = 0, stale = actual days since last use, never used = window_days
--- Account tier: CRITICAL if LEAVER_ACTIVE or SUPERUSER flag; HIGH if any other flag or
--- percentile >= 75; MEDIUM if percentile >= 50; otherwise LOW.
--- Percentile = share of accounts with a lower score (percent_rank).
--- A privilege held through a role AND directly is attributed to the role; privileges
--- granted only directly are grouped as '(direct grants only)'.
--- Weights and tier thresholds are judgment calls: edit them here and re-run.
--- Run: psql -U postgres -d privilege_audit -v snapshot=before -f sql/05_risk_scoring.sql
-
 \set ON_ERROR_STOP on
 \if :{?snapshot}
 \else
