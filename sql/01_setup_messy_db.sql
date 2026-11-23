@@ -1,3 +1,9 @@
+-- 01_setup_messy_db.sql
+-- Builds a fake company database with deliberately planted privilege problems.
+-- Safe to re-run: it removes and rebuilds everything it created.
+-- Run: psql -U postgres -d privilege_audit -f sql/01_setup_messy_db.sql
+-- Login roles have no passwords, so nobody can actually authenticate as them.
+
 \set ON_ERROR_STOP on
 BEGIN;
 

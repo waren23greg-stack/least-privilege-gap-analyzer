@@ -1,3 +1,12 @@
+-- 03_load_usage_log.sql
+-- Loads a SIMULATED database audit log into audit.usage_log and stores the analysis settings.
+-- In production this table would be fed by pgAudit or parsed server logs with the same columns.
+-- Deterministic: no randomness, so every run produces identical rows.
+-- Keep as_of at its default: peter_x's termination date (script 01) is fixed relative to it.
+-- Limitation: the log records table access only, so use of SUPERUSER / CREATEROLE cannot be seen
+-- here; those accounts are flagged by their attributes in the gap queries.
+-- Run: psql -U postgres -d privilege_audit -f sql/03_load_usage_log.sql
+
 \set ON_ERROR_STOP on
 \if :{?as_of}
 \else
