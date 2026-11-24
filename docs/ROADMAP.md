@@ -15,19 +15,19 @@ Working rules: one file per commit, review the diff before every push, lab datab
 
 **Done when:** the verification queries at the end of `03` run clean, `05` runs end to end, and every planted gap in the README table appears as a flag or a stale / never-used row.
 
-## Phase 2: Remediation
+## Phase 2: Remediation (done)
 
-- [ ] `06_generate_revokes.sql`: `audit.revoke_plan` with `revoke_sql`, `rollback_sql`, reason and risk points
-- [ ] Rules: revoke only stale or never-used privileges; leavers get `NOLOGIN`; `SUPERUSER` / `CREATEROLE` removal and shared accounts go to a manual-review list
-- [ ] Export `revoke.sql` and `rollback.sql` as files
+- [x] `06_generate_revokes.sql`: `audit.revoke_plan` with `revoke_sql`, `rollback_sql`, reason and risk points
+- [x] Rules: automatic actions only where the log shows no use; leavers get `NOLOGIN` and lose their roles; `SUPERUSER` / `CREATEROLE`, dormant and shared accounts, and role grants only some members use go to a review list
+- [x] Export `exports/revoke_<snapshot>.sql` and `exports/rollback_<snapshot>.sql`
 
 **Done when:** applying the rollback restores the `before` snapshot exactly (diff is empty).
 
-## Phase 3: Prove it
+## Phase 3: Prove it (done)
 
-- [ ] `07_verify_after.sql`: apply the plan in the lab, take an `after` snapshot, re-run scoring
-- [ ] Replay the usage log against the `after` grants: count events that would now be denied
-- [ ] Before/after comparison: risk points, privileges granted, accounts per tier
+- [x] `07_verify_after.sql`: before/after comparison; the plan is applied in the lab and an `after` snapshot is scored
+- [x] Replay the usage log against the `after` grants: count events that would now be denied
+- [x] Before/after comparison: risk points, privileges granted, accounts per tier
 
 **Done when:** zero events from active privileges would be denied, and risk drops measurably.
 
