@@ -16,7 +16,7 @@
 BEGIN;
 
 CREATE SCHEMA IF NOT EXISTS audit;
-DROP TABLE IF EXISTS audit.usage_log;
+DROP TABLE IF EXISTS audit.usage_log CASCADE;
 DROP TABLE IF EXISTS audit.analysis_config;
 
 -- Single-row settings table (the PRIMARY KEY on a constant-true column enforces one row)
