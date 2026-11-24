@@ -36,12 +36,28 @@ Planned: segregation-of-duties conflicts, sensitive-column exposure, off-hours a
 
 Details: [ARCHITECTURE](docs/ARCHITECTURE.md).
 
+## Lab results
+
+Measured on the simulated company database (207 effective privileges, 20 accounts, 180 days of log):
+
+| Metric | Before | After |
+|---|---|---|
+| Privileges granted | 207 | 92 |
+| Privileges in active use | 68 | 68 |
+| Utilization | 32.9% | 73.9% |
+| Risk points | 311,540 | 35,250 (-88.7%) |
+| Critical accounts | 2 | 1 |
+| Recent events by current staff denied (last 90 days) | | 0 of 1,321 |
+| Rollback | | Restored grants and accounts identical to before |
+
+What is left is deliberate: `SUPERUSER`, `CREATEROLE`, the dormant account and the shared account need a human decision, and role grants that only some members use cannot be revoked per member.
+
 ## Repo layout
 
 ```
 sql/        numbered pipeline scripts, run in order
 docs/       ROADMAP.md, ARCHITECTURE.md
-exports/    CSV output for Excel / Power BI      (planned)
+exports/    generated REVOKE and rollback scripts (CSV for Excel / Power BI planned)
 scripts/    run_all.sh helper                    (planned)
 excel/      analysis workbook                    (planned)
 powerbi/    dashboard                            (planned)
@@ -58,9 +74,29 @@ psql -U postgres -d privilege_audit -v snapshot=before -f sql/02_collect_granted
 psql -U postgres -d privilege_audit -f sql/03_load_usage_log.sql
 psql -U postgres -d privilege_audit -v snapshot=before -f sql/04_gap_queries.sql
 psql -U postgres -d privilege_audit -v snapshot=before -f sql/05_risk_scoring.sql
+mkdir -p exports
+psql -U postgres -d privilege_audit -v snapshot=before -f sql/06_generate_revokes.sql
 ```
 
-`02`, `04` and `05` take `-v snapshot=before|after`. `03` takes an optional `-v as_of=YYYY-MM-DD`; keep the default, because the leaver's termination date is fixed relative to it.
+`02`, `04`, `05` and `06` take `-v snapshot=before|after`. `03` takes an optional `-v as_of=YYYY-MM-DD`; keep the default, because the leaver's termination date is fixed relative to it.
+
+Apply the plan in the lab, re-measure and compare:
+
+```bash
+psql -v ON_ERROR_STOP=1 -U postgres -d privilege_audit -f exports/revoke_before.sql
+for s in 02_collect_granted 04_gap_queries 05_risk_scoring; do
+  psql -q -v ON_ERROR_STOP=1 -U postgres -d privilege_audit -v snapshot=after -f sql/$s.sql > /dev/null
+done
+psql -U postgres -d privilege_audit -f sql/07_verify_after.sql
+```
+
+Undo it and prove the undo is exact (section 6 of `07` then reports zero differences):
+
+```bash
+psql -v ON_ERROR_STOP=1 -U postgres -d privilege_audit -f exports/rollback_before.sql
+psql -q -U postgres -d privilege_audit -v snapshot=restored -f sql/02_collect_granted.sql > /dev/null
+psql -U postgres -d privilege_audit -f sql/07_verify_after.sql
+```
 
 ## Safety
 
@@ -78,4 +114,6 @@ psql -U postgres -d privilege_audit -v snapshot=before -f sql/05_risk_scoring.sq
 | `03_load_usage_log.sql` | Simulated 180-day usage log | Done |
 | `04_gap_queries.sql` | Granted vs used, flags, sensitivity, findings | Done |
 | `05_risk_scoring.sql` | Risk points, percentiles, tiers | Done |
-| `06` to `08` | Revoke plan, before/after proof, forensics | Planned |
+| `06_generate_revokes.sql` | Remediation plan, REVOKE and rollback files | Done |
+| `07_verify_after.sql` | Before/after comparison, log replay, rollback proof | Done |
+| `08` | Forensics: timelines, tamper evidence | Planned |
