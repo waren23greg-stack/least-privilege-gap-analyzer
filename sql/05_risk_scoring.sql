@@ -149,7 +149,7 @@ COMMIT;
 SELECT account, department, risk_points, percentile, risk_tier, flags
 FROM audit.account_risk
 WHERE snapshot = :'snapshot'
-ORDER BY risk_points DESC, account
+ORDER BY array_position(ARRAY['CRITICAL','HIGH','MEDIUM','LOW'], risk_tier), risk_points DESC, account
 LIMIT 10;
 
 \echo == 2. Accounts by risk tier ==
