@@ -1,0 +1,11 @@
+snapshot,account,flag,evidence
+before,grace_m,CREATEROLE,CREATEROLE attribute; department: Sales
+before,quinn_s,DORMANT,No activity in the last 90 days
+before,peter_x,LEAVER_ACTIVE,"Terminated 2026-06-30, login still enabled; 6 events after termination"
+before,tom_l,ROLE_MISMATCH,Department Support but member of role_finance
+before,shared_reports,SHARED_ACCOUNT,No HR owner; 6 distinct source IPs
+before,brian_o,SUPERUSER,SUPERUSER attribute; department: Analytics
+after,grace_m,CREATEROLE,CREATEROLE attribute; department: Sales
+after,quinn_s,DORMANT,No activity in the last 90 days
+after,shared_reports,SHARED_ACCOUNT,No HR owner; 6 distinct source IPs
+after,brian_o,SUPERUSER,SUPERUSER attribute; department: Analytics

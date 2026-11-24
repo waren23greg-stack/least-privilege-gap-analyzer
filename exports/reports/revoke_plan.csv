@@ -1,0 +1,55 @@
+snapshot,plan_id,decision,category,target,table_name,privilege,reason,risk_points,revoke_sql
+before,1,AUTO,DIRECT_GRANT,david_n,payments,DELETE,"Direct grant, never used in the log window",4500,REVOKE DELETE ON company.payments FROM david_n;
+before,2,AUTO,DIRECT_GRANT,kevin_b,customers,INSERT,"Direct grant, never used in the log window",2160,REVOKE INSERT ON company.customers FROM kevin_b;
+before,3,AUTO,DIRECT_GRANT,peter_x,salaries,UPDATE,"Direct grant, never used in the log window",2700,REVOKE UPDATE ON company.salaries FROM peter_x;
+before,4,AUTO,DIRECT_GRANT,kevin_b,customers,UPDATE,"Direct grant, never used in the log window",2160,REVOKE UPDATE ON company.customers FROM kevin_b;
+before,5,AUTO,DIRECT_GRANT,irene_k,employees,SELECT,"Direct grant, never used in the log window",720,REVOKE SELECT ON company.employees FROM irene_k;
+before,6,AUTO,DIRECT_GRANT,kevin_b,customers,SELECT,"Direct grant, never used in the log window",720,REVOKE SELECT ON company.customers FROM kevin_b;
+before,7,AUTO,DIRECT_GRANT,kevin_b,customers,DELETE,"Direct grant, never used in the log window",3600,REVOKE DELETE ON company.customers FROM kevin_b;
+before,8,AUTO,DIRECT_GRANT,mary_c,salaries,SELECT,"Direct grant, never used in the log window",900,REVOKE SELECT ON company.salaries FROM mary_c;
+before,9,AUTO,DIRECT_GRANT,peter_x,salaries,SELECT,"Direct grant, never used in the log window",900,REVOKE SELECT ON company.salaries FROM peter_x;
+before,10,AUTO,ROLE_GRANT,role_analyst,customers,INSERT,No member of the role uses it (5 members),10800,REVOKE INSERT ON company.customers FROM role_analyst;
+before,11,AUTO,ROLE_GRANT,role_analyst,orders,DELETE,No member of the role uses it (5 members),9000,REVOKE DELETE ON company.orders FROM role_analyst;
+before,12,AUTO,ROLE_GRANT,role_analyst,customers,UPDATE,No member of the role uses it (5 members),10800,REVOKE UPDATE ON company.customers FROM role_analyst;
+before,13,AUTO,ROLE_GRANT,role_analyst,salaries,UPDATE,No member of the role uses it (5 members),13500,REVOKE UPDATE ON company.salaries FROM role_analyst;
+before,14,AUTO,ROLE_GRANT,role_analyst,employees,UPDATE,No member of the role uses it (5 members),10800,REVOKE UPDATE ON company.employees FROM role_analyst;
+before,15,AUTO,ROLE_GRANT,role_analyst,employees,SELECT,No member of the role uses it (5 members),3600,REVOKE SELECT ON company.employees FROM role_analyst;
+before,16,AUTO,ROLE_GRANT,role_analyst,employees,INSERT,No member of the role uses it (5 members),10800,REVOKE INSERT ON company.employees FROM role_analyst;
+before,17,AUTO,ROLE_GRANT,role_analyst,orders,INSERT,No member of the role uses it (5 members),5400,REVOKE INSERT ON company.orders FROM role_analyst;
+before,18,AUTO,ROLE_GRANT,role_analyst,customers,DELETE,No member of the role uses it (5 members),18000,REVOKE DELETE ON company.customers FROM role_analyst;
+before,19,AUTO,ROLE_GRANT,role_analyst,orders,UPDATE,No member of the role uses it (5 members),5400,REVOKE UPDATE ON company.orders FROM role_analyst;
+before,20,AUTO,ROLE_GRANT,role_analyst,salaries,SELECT,No member of the role uses it (5 members),4500,REVOKE SELECT ON company.salaries FROM role_analyst;
+before,21,AUTO,ROLE_GRANT,role_hr,salaries,INSERT,No member of the role uses it (3 members),8100,REVOKE INSERT ON company.salaries FROM role_hr;
+before,22,AUTO,ROLE_GRANT,role_analyst,payments,INSERT,No member of the role uses it (5 members),13500,REVOKE INSERT ON company.payments FROM role_analyst;
+before,23,AUTO,ROLE_GRANT,role_analyst,salaries,INSERT,No member of the role uses it (5 members),13500,REVOKE INSERT ON company.salaries FROM role_analyst;
+before,24,AUTO,ROLE_GRANT,role_support,orders,DELETE,No member of the role uses it (4 members),7200,REVOKE DELETE ON company.orders FROM role_support;
+before,25,AUTO,ROLE_GRANT,role_finance,payments,DELETE,No member of the role uses it (5 members),22500,REVOKE DELETE ON company.payments FROM role_finance;
+before,26,AUTO,ROLE_GRANT,role_analyst,employees,DELETE,No member of the role uses it (5 members),18000,REVOKE DELETE ON company.employees FROM role_analyst;
+before,27,AUTO,ROLE_GRANT,role_analyst,payments,DELETE,No member of the role uses it (5 members),22500,REVOKE DELETE ON company.payments FROM role_analyst;
+before,28,AUTO,ROLE_GRANT,role_analyst,payments,UPDATE,No member of the role uses it (5 members),13500,REVOKE UPDATE ON company.payments FROM role_analyst;
+before,29,AUTO,ROLE_GRANT,role_analyst,salaries,DELETE,No member of the role uses it (5 members),22500,REVOKE DELETE ON company.salaries FROM role_analyst;
+before,30,REVIEW,ROLE_GRANT,role_analyst,customers,SELECT,Used by 3 of 5 members; cannot be revoked for the others without splitting the role,1440,
+before,31,REVIEW,ROLE_GRANT,role_support,customers,UPDATE,Used by 3 of 4 members; cannot be revoked for the others without splitting the role,2160,
+before,32,REVIEW,ROLE_GRANT,role_sales,orders,UPDATE,Used by 2 of 4 members; cannot be revoked for the others without splitting the role,2160,
+before,33,REVIEW,ROLE_GRANT,role_finance,payments,SELECT,Used by 3 of 5 members; cannot be revoked for the others without splitting the role,1400,
+before,34,REVIEW,ROLE_GRANT,role_finance,customers,SELECT,Used by 4 of 5 members; cannot be revoked for the others without splitting the role,720,
+before,35,REVIEW,ROLE_GRANT,role_analyst,payments,SELECT,Used by 3 of 5 members; cannot be revoked for the others without splitting the role,1800,
+before,36,REVIEW,ROLE_GRANT,role_hr,employees,INSERT,Used by 2 of 3 members; cannot be revoked for the others without splitting the role,2160,
+before,37,REVIEW,ROLE_GRANT,role_sales,payments,SELECT,Used by 1 of 4 members; cannot be revoked for the others without splitting the role,2400,
+before,38,REVIEW,ROLE_GRANT,role_finance,orders,SELECT,Used by 4 of 5 members; cannot be revoked for the others without splitting the role,360,
+before,39,REVIEW,ROLE_GRANT,role_finance,payments,INSERT,Used by 3 of 5 members; cannot be revoked for the others without splitting the role,5400,
+before,40,REVIEW,ROLE_GRANT,role_analyst,orders,SELECT,Used by 4 of 5 members; cannot be revoked for the others without splitting the role,360,
+before,41,REVIEW,ROLE_GRANT,role_finance,salaries,SELECT,Used by 1 of 5 members; cannot be revoked for the others without splitting the role,3450,
+before,42,REVIEW,ROLE_GRANT,role_sales,customers,UPDATE,Used by 2 of 4 members; cannot be revoked for the others without splitting the role,3360,
+before,43,REVIEW,ROLE_GRANT,role_hr,employees,UPDATE,Used by 2 of 3 members; cannot be revoked for the others without splitting the role,2160,
+before,44,REVIEW,ROLE_GRANT,role_hr,salaries,UPDATE,Used by 1 of 3 members; cannot be revoked for the others without splitting the role,5400,
+before,45,REVIEW,ROLE_GRANT,role_finance,payments,UPDATE,Used by 1 of 5 members; cannot be revoked for the others without splitting the role,10050,
+before,46,REVIEW,ROLE_GRANT,role_support,orders,UPDATE,Used by 3 of 4 members; cannot be revoked for the others without splitting the role,1080,
+before,47,REVIEW,ROLE_GRANT,role_sales,customers,INSERT,Used by 2 of 4 members; cannot be revoked for the others without splitting the role,4320,
+before,48,AUTO,LOGIN,peter_x,,,"Leaver: Terminated 2026-06-30, login still enabled; 6 events after termination",0,ALTER ROLE peter_x NOLOGIN;
+before,49,AUTO,MEMBERSHIP,peter_x,,,Leaver: remove from role_finance,0,REVOKE role_finance FROM peter_x;
+before,50,AUTO,MEMBERSHIP,tom_l,,,HR department is Support; no active privilege depends on role_finance,0,REVOKE role_finance FROM tom_l;
+before,51,REVIEW,LOGIN,quinn_s,,,Dormant account; confirm with HR before disabling (No activity in the last 90 days),0,ALTER ROLE quinn_s NOLOGIN;
+before,52,REVIEW,MANUAL,shared_reports,,,Shared login; replace with named accounts (No HR owner; 6 distinct source IPs),0,
+before,53,REVIEW,ATTRIBUTE,brian_o,,,Superuser on a non-admin account; the table log cannot show its use (SUPERUSER attribute; department: Analytics),0,ALTER ROLE brian_o NOSUPERUSER;
+before,54,REVIEW,ATTRIBUTE,grace_m,,,CREATEROLE on a non-admin account; the table log cannot show its use (CREATEROLE attribute; department: Sales),0,ALTER ROLE grace_m NOCREATEROLE;

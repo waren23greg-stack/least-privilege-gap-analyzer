@@ -1,0 +1,12 @@
+snapshot,source,members,granted_pairs,risk_points,share_pct
+before,role_analyst,5,100,209700,67.3
+before,role_finance,5,35,43880,14.1
+before,role_hr,3,18,17820,5.7
+before,(direct grants only),5,8,17460,5.6
+before,role_sales,4,28,12240,3.9
+before,role_support,4,20,10440,3.4
+after,role_sales,4,28,12240,34.7
+after,role_hr,3,15,9720,27.6
+after,role_finance,3,18,6450,18.3
+after,role_analyst,5,15,3600,10.2
+after,role_support,4,16,3240,9.2

@@ -1,0 +1,3 @@
+snapshot,privileges_granted,privileges_active,privileges_unused,utilization_pct,risk_points,accounts,accounts_critical,accounts_high,accounts_medium,accounts_low,flags
+before,207,68,139,32.9,311540,20,2,6,3,9,6
+after,92,68,24,73.9,35250,19,1,7,4,7,4
