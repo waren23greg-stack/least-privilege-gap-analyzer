@@ -31,12 +31,11 @@ Working rules: one file per commit, review the diff before every push, lab datab
 
 **Done when:** zero events from active privileges would be denied, and risk drops measurably.
 
-## Phase 4: Forensics
+## Phase 4: Forensics (done)
 
-- [ ] `08_forensics.sql`: per-account timeline, activity after termination, source-IP changes, shared-account fingerprint
-- [ ] Tamper evidence: hash chain over `audit.usage_log` (each row stores a hash of the previous row plus its own content), verification query, deliberate tamper test
-- [ ] Make the log append-only (revoke UPDATE / DELETE on it)
-- [ ] Case file export: one account's full evidence as CSV
+- [x] `08_forensics.sql`: forensic views, activity after termination, source-IP usage, shared-account fingerprint
+- [x] `09_log_integrity.sql`: hash chain over `audit.usage_log` kept in `audit.log_seal`, per-row verification status, one head hash, deliberate tamper test
+- [x] Case file export: one account's full evidence as CSV (`exports/case_<account>.csv`)
 
 **Done when:** editing or deleting one log row is detected by the verification query.
 
@@ -59,6 +58,7 @@ Working rules: one file per commit, review the diff before every push, lab datab
 
 ## Phase 7: Stretch
 
+- Enforce append-only on the usage log (trigger or revoked UPDATE / DELETE); the seal already detects edits
 - Segregation of duties (same account can both create and approve or delete)
 - Column-level sensitivity (`national_id`, `card_number`, `monthly_salary`) instead of table-level
 - Off-hours and volume anomaly detection
