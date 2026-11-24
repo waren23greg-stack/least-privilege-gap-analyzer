@@ -55,7 +55,7 @@ flowchart LR
 | Detection | `04` | `audit.table_sensitivity`, `audit.privilege_usage`, `audit.account_flags` |
 | Scoring | `05` | `audit.privilege_weights`, `privilege_risk`, `account_risk`, `role_risk` |
 | Remediation | `06` | `audit.revoke_plan` |
-| Proof | `07` | `after` snapshot, replay results |
+| Proof | `07` | comparison queries; needs the `after` and `restored` snapshots |
 | Forensics | `08` | timelines, tamper checks |
 
 ## Data contracts
@@ -71,6 +71,7 @@ flowchart LR
 | `audit.privilege_usage` | 04 | `snapshot`, `account`, `table_name`, `privilege`, `granted_via text[]`, `uses`, `last_used`, `days_since_use`, `status` (`active` / `stale` / `never_used`) |
 | `audit.table_sensitivity` | 04 | `table_name`, `sensitivity` (1 to 5), `sensitive_columns` |
 | `audit.account_flags` | 04 | `snapshot`, `account`, `flag`, `evidence` |
+| `audit.revoke_plan` | 06 | `plan_id`, `snapshot`, `category`, `decision` (`AUTO` / `REVIEW`), `target`, `table_name`, `privilege`, `reason`, `risk_points`, `revoke_sql`, `rollback_sql` |
 
 `granted_via` holds `role:<rolename>` entries and/or `direct`. `05` relies on that format to attribute risk to roles.
 
@@ -86,8 +87,22 @@ risk_points = sensitivity x privilege_weight x days_unused
 - `days_unused`: 0 if active, days since last use if stale, full window (180) if never used
 - Account tier: `CRITICAL` on a critical flag, `HIGH` on any flag or percentile 75 and up, `MEDIUM` at 50 and up, otherwise `LOW`
 - Role risk is attributed through `granted_via`, so a role shows how much of the total risk it creates
+- Tiers are percentile-based, so they are relative to the other accounts. Compare risk points, not tier counts, to measure change between snapshots
 
 Active privileges score zero by design. The model measures *unjustified* access, not access in general. Critical attributes like `SUPERUSER` are caught by flags instead.
+
+## Remediation rules (06)
+
+| Situation | Action | Decision |
+|---|---|---|
+| Direct grant not in active use | REVOKE from the account | AUTO |
+| Role privilege that no member uses | REVOKE from the role | AUTO |
+| Role privilege that only some members use | Listed without SQL, because a role grant cannot be revoked per member | REVIEW |
+| Leaver with a working login | NOLOGIN and removal from roles | AUTO |
+| Mover in a role of the old department | Remove from the role if no active privilege depends on it | AUTO, otherwise REVIEW |
+| SUPERUSER / CREATEROLE, dormant account, shared account | Statement or note supplied | REVIEW |
+
+Every action stores its own rollback statement. Proof (07): replaying the log against the `after` grants denied none of the 1,321 recent events by current staff, and the rollback file restores grants and accounts identical to `before`.
 
 ## Design decisions
 
