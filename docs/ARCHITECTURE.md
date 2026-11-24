@@ -56,7 +56,8 @@ flowchart LR
 | Scoring | `05` | `audit.privilege_weights`, `privilege_risk`, `account_risk`, `role_risk` |
 | Remediation | `06` | `audit.revoke_plan` |
 | Proof | `07` | comparison queries; needs the `after` and `restored` snapshots |
-| Forensics | `08` | timelines, tamper checks |
+| Forensics | `08` | views `audit.forensic_events`, `forensic_ip_usage`, `forensic_accounts`; case file CSV |
+| Integrity | `09` | `audit.log_seal`, `audit.log_anchor`; views `log_row_digest`, `log_current_head`, `log_verification` |
 
 ## Data contracts
 
@@ -72,6 +73,8 @@ flowchart LR
 | `audit.table_sensitivity` | 04 | `table_name`, `sensitivity` (1 to 5), `sensitive_columns` |
 | `audit.account_flags` | 04 | `snapshot`, `account`, `flag`, `evidence` |
 | `audit.revoke_plan` | 06 | `plan_id`, `snapshot`, `category`, `decision` (`AUTO` / `REVIEW`), `target`, `table_name`, `privilege`, `reason`, `risk_points`, `revoke_sql`, `rollback_sql` |
+| `audit.log_seal` | 09 | `log_id`, `seq`, `content_hash`, `chain_hash` |
+| `audit.log_anchor` | 09 | `sealed_at`, `log_rows`, `head_hash` |
 
 `granted_via` holds `role:<rolename>` entries and/or `direct`. `05` relies on that format to attribute risk to roles.
 
@@ -115,12 +118,13 @@ Every action stores its own rollback statement. Proof (07): replaying the log ag
 - **Human in the loop**: remediation produces scripts to review. It never executes them.
 - **Rollback first**: no REVOKE is generated without its matching GRANT.
 
-## Forensics design (planned)
+## Forensics and log integrity (08, 09)
 
-- The usage log is treated as evidence: append-only, with a hash chain so edits and deletions are detectable.
-- Timelines join the log with the HR roster to show activity around termination and role changes.
-- Shared-account fingerprint comes from distinct source IPs per account.
-- A case file export packages one account's evidence for review.
+- `08` builds views over the usage log joined with the HR roster. Each event is labelled `normal`, `after termination` or `no HR owner`. A case file for one account (profile, activity by month, what it did, latest events) is printed and written to `exports/case_<account>.csv`.
+- `09` seals the log with a hash chain: a `content_hash` per row (all fields, including `log_id`), then `chain_hash(n) = sha256(chain_hash(n-1) || content_hash(n))`. The last value, the head hash, changes if any row is edited, deleted or added. `audit.log_verification` labels each row `OK`, `MODIFIED`, `DELETED` or `INSERTED`.
+- Trust model: sealing trusts the log as it is at that moment. The head hash must be copied outside the database, because someone who rewrites the log, the seal and the anchor together can only be caught by that outside copy.
+- Tamper test: one reassigned event, one deleted event and one planted event were each pinpointed and the head hash changed. The test runs in a transaction that is rolled back.
+- Reloading the log with `03` drops these views (`CASCADE`), so `08` and `09` are run again afterwards.
 
 ## Tooling
 
