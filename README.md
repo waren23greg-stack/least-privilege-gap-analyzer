@@ -21,7 +21,7 @@ Access only ever grows. People change teams and keep old rights, leavers keep wo
 | Role bloat | Role grants far more than its members use | `role_analyst` (full write, read-only in practice) |
 | Direct grants bypassing roles | Privileges granted to a user outside any role | `david_n`, `mary_c`, `irene_k`, `kevin_b` |
 
-Planned: segregation-of-duties conflicts, sensitive-column exposure, off-hours and volume anomalies, log tamper detection. See [ROADMAP](docs/ROADMAP.md).
+Planned: segregation-of-duties conflicts, sensitive-column exposure, off-hours and volume anomalies. Log tamper detection is built (script 09). See [ROADMAP](docs/ROADMAP.md).
 
 ## How it works
 
@@ -32,7 +32,8 @@ Planned: segregation-of-duties conflicts, sensitive-column exposure, off-hours a
 5. **Score**: `sensitivity x privilege weight x days unused`, then rank accounts and roles.
 6. **Remediate**: generate `REVOKE` and rollback scripts. Nothing is applied automatically.
 7. **Prove**: apply in the lab, re-score, replay the log to show nothing in active use breaks.
-8. **Report**: export to Excel and Power BI.
+8. **Investigate**: forensic views and a case file per account; the usage log is sealed with a hash chain so edits and deletions are detectable.
+9. **Report**: export to Excel and Power BI.
 
 Details: [ARCHITECTURE](docs/ARCHITECTURE.md).
 
@@ -52,12 +53,18 @@ Measured on the simulated company database (207 effective privileges, 20 account
 
 What is left is deliberate: `SUPERUSER`, `CREATEROLE`, the dormant account and the shared account need a human decision, and role grants that only some members use cannot be revoked per member.
 
+## Forensics
+
+- **Leaver case file**: `peter_x` (terminated 2026-06-30) read the salaries table 6 times between 2026-07-15 and 2026-10-21, from the same workstation he used before leaving. The full trail is in `exports/case_peter_x.csv`.
+- **Shared account**: `shared_reports` was used from 6 different source IPs and has no HR owner.
+- **Tamper evidence**: the usage log is sealed with a hash chain. In the test, one reassigned event, one deleted event and one planted event were each pinpointed (`MODIFIED`, `DELETED`, `INSERTED`) and the head hash changed. The test rolls back, so the log is unharmed.
+
 ## Repo layout
 
 ```
 sql/        numbered pipeline scripts, run in order
 docs/       ROADMAP.md, ARCHITECTURE.md
-exports/    generated REVOKE and rollback scripts (CSV for Excel / Power BI planned)
+exports/    generated REVOKE / rollback scripts and case files (CSV for Excel / Power BI planned)
 scripts/    run_all.sh helper                    (planned)
 excel/      analysis workbook                    (planned)
 powerbi/    dashboard                            (planned)
@@ -76,9 +83,11 @@ psql -U postgres -d privilege_audit -v snapshot=before -f sql/04_gap_queries.sql
 psql -U postgres -d privilege_audit -v snapshot=before -f sql/05_risk_scoring.sql
 mkdir -p exports
 psql -U postgres -d privilege_audit -v snapshot=before -f sql/06_generate_revokes.sql
+psql -U postgres -d privilege_audit -v account=peter_x -f sql/08_forensics.sql
+psql -U postgres -d privilege_audit -f sql/09_log_integrity.sql
 ```
 
-`02`, `04`, `05` and `06` take `-v snapshot=before|after`. `03` takes an optional `-v as_of=YYYY-MM-DD`; keep the default, because the leaver's termination date is fixed relative to it.
+`02`, `04`, `05` and `06` take `-v snapshot=before|after`. `03` takes an optional `-v as_of=YYYY-MM-DD`; keep the default, because the leaver's termination date is fixed relative to it. `08` takes `-v account=<name>` (default `peter_x`) and writes `exports/case_<account>.csv`. `09` seals the log as it is at that moment, so run it right after loading a log you trust. Reloading the log with `03` drops the forensic views and makes the seal stale, so run `08` and `09` again afterwards.
 
 Apply the plan in the lab, re-measure and compare:
 
@@ -116,4 +125,5 @@ psql -U postgres -d privilege_audit -f sql/07_verify_after.sql
 | `05_risk_scoring.sql` | Risk points, percentiles, tiers | Done |
 | `06_generate_revokes.sql` | Remediation plan, REVOKE and rollback files | Done |
 | `07_verify_after.sql` | Before/after comparison, log replay, rollback proof | Done |
-| `08` | Forensics: timelines, tamper evidence | Planned |
+| `08_forensics.sql` | Forensic views, post-termination and IP findings, case file | Done |
+| `09_log_integrity.sql` | Hash-chain seal of the usage log, tamper test | Done |
